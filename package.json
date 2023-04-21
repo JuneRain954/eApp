@@ -1,5 +1,9 @@
 {
   "name": "eapp",
+  "author": {
+    "name": "juneRain"
+  },
+  "description": "this is an PC App",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -11,6 +15,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
     "electron": "^24.1.2",
+    "electron-builder": "^23.6.0",
     "typescript": "^4.9.3",
     "vite": "^4.3.0",
     "vite-plugin-optimizer": "^1.4.2",

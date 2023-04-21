@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import { CustomScheme } from './customScheme';
 
 let mainWindow: BrowserWindow;
 // 设置渲染进程开发者调试工具不显示警告
@@ -19,5 +20,10 @@ app.whenReady().then(() => {
   mainWindow = new BrowserWindow(config);
   // 打开开发者调试工具
   mainWindow.webContents.openDevTools({mode: "undocked"});
-  mainWindow.loadURL(process.argv[2]);
+  if(process.argv[2]){
+    mainWindow.loadURL(process.argv[2]);
+  }else{
+    CustomScheme.registerScheme();
+    mainWindow.loadURL("app://index.html");
+  }
 })
