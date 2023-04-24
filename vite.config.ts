@@ -10,6 +10,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       plugins: [buildPlugin()],
-    }
-  }
+    },
+    // 关闭小文件编译的行为 (如: iconfont.ttf 文件足够小, Vite 会将其转成 base64 编码的字符串)
+    assetsInlineLimit: 0,
+  },
 })
