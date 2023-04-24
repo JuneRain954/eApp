@@ -1,36 +1,39 @@
 import fs from 'fs';
 import path from 'path';
 
-const entryPath = "./src/main/mainEntry.ts";
-const outPath = "./dist/mainEntry.js";
+const ENTRY_PATH = "./src/main/mainEntry.ts";
+const OUT_PATH = "./dist/mainEntry.js";
+const CUR_PATH = process.cwd();
 
 class BuildObj{
   constructor(){}
 
-  // 编译主进程代码
+  // 编译主进程代码 (因为 Vite 编译前会清空 dist 目录，故需重新编译一遍)
   buildMain(){
     require("esbuild").buildSync({
-      entryPoints: [entryPath],
+      entryPoints: [ENTRY_PATH],
       bundle: true,
       platform: "node",
       minify: true,
-      outfile: outPath,
+      outfile: OUT_PATH,
       external: ["electron"],
     })
   }
 
   // 为生产环境准备 package.json,
   preparePackageJson(){
-    let pkgJsonPath = path.join(process.cwd(), "package.json");
+    // 读取 package.json 文件内容
+    let pkgJsonPath = path.join(CUR_PATH, "package.json");
     let localPkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+    // 固定 electron 的版本号
     let electronConfig = localPkgJson.devDependencies.electron.replace("^", "");
     localPkgJson.main = "mainEntry.js";
     delete localPkgJson.scripts;
     delete localPkgJson.devDependencies;
     localPkgJson.devDependencies = {electron: electronConfig};
-    let tarJsonPath = path.join(process.cwd(), "dist", "package.json");
+    let tarJsonPath = path.join(CUR_PATH, "dist", "package.json");
     fs.writeFileSync(tarJsonPath, JSON.stringify(localPkgJson));
-    fs.mkdirSync(path.join(process.cwd(), "dist/node_modules"));
+    fs.mkdirSync(path.join(CUR_PATH, "dist/node_modules"));
   }
 
   // 使用 electron-builder 制作安装包
@@ -38,8 +41,8 @@ class BuildObj{
     let options = {
       config: {
         directories: {
-          output: path.join(process.cwd(), "release"),
-          app: path.join(process.cwd(), "dist"),
+          output: path.join(CUR_PATH, "release"),
+          app: path.join(CUR_PATH, "dist"),
         },
         files: ["**"],
         extends: null,
@@ -56,12 +59,14 @@ class BuildObj{
         },
         publish: [{provider: "generic", url: "http://localhost:5000/"}],
       },
-      project: process.cwd(),
+      project: CUR_PATH,
     };
 
     return require("electron-builder").build(options);
   }
 }
+
+
 
 // 打包插件
 export let buildPlugin = () => {
